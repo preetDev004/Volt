@@ -19,69 +19,81 @@ export default function ChatInput() {
       textarea.style.height = `${Math.min(textarea.scrollHeight, 500)}px`;
     }
   };
+
   useEffect(() => {
     adjustTextareaHeight();
   }, [message]);
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
 
+  const submitMessage = () => {
     const trimmedMessage = message.trim();
     if (!trimmedMessage) return;
 
-    fetcher.submit({ message: trimmedMessage });
-
+    fetcher.submit({ message: trimmedMessage }, { method: "post" });
     setMessage("");
   };
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    submitMessage();
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault(); // Prevent default form submission
+      submitMessage();
+    }
+  };
+
   return (
-    <div className="w-[450px] mx-auto h-auto absolute bottom-0 mb-4 overflow-hidden">
-    <fetcher.Form onSubmit={handleSubmit} method="post">
-      <Textarea
-        aria-label="Message"
-        className="text-white  bg-black-2 p-4 pr-14 rounded-md focus:outline-none shadow-purple-700-lg"
-        ref={textareaRef}
-        name="message"
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder="Type your message..."
-      />
-      <Button
-        aria-label="Submit"
-        type="submit"
-        className={`absolute right-4 bottom-6 p-2 w-8 h-8 rounded-md transition-all duration-300 ease-in-out 
+    <div className="w-full max-w-[400px] mx-auto h-auto sticky bottom-0 mb-4 overflow-hidden backdrop-blur-sm">
+      <fetcher.Form onSubmit={handleSubmit} method="post" className="">
+        <Textarea
+          aria-label="Message"
+          className="text-white bg-black-2 border-gray-400 p-4 pr-14 rounded-md focus:outline-none"
+          ref={textareaRef}
+          name="message"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="Type your message..."
+          onKeyDown={handleKeyDown}
+        />
+        <Button
+          aria-label="Submit"
+          type="submit"
+          className={`absolute right-4 bottom-6 p-2 w-8 h-8 rounded-md transition-all duration-300 ease-in-out 
                 ${
                   message.trim() === "" || isSubmitting
                     ? "bg-gray-200 text-gray-400 -bottom-10 cursor-not-allowed opacity-0 translate-y-2"
                     : "bg-purple-500 text-white hover:bg-purple-600 active:bg-purple-700 opacity-100 -translate-y-2"
                 }`}
-        disabled={message.trim() === "" || isSubmitting}
-      >
-        {isSubmitting ? (
-          <svg
-            className="animate-spin h-6 w-6 "
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            ></circle>
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-          </svg>
-        ) : (
-          <ArrowRight/>
-        )}
-      </Button>
-    </fetcher.Form>
+          disabled={message.trim() === "" || isSubmitting}
+        >
+          {isSubmitting ? (
+            <svg
+              className="animate-spin h-6 w-6 "
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+          ) : (
+            <ArrowRight />
+          )}
+        </Button>
+      </fetcher.Form>
     </div>
   );
 }

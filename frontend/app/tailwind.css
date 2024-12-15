@@ -9,7 +9,6 @@ body {
   @media (prefers-color-scheme: dark) {
     color-scheme: dark;
   }
-
 }
 
 @layer base {
@@ -40,6 +39,7 @@ body {
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
   }
+
   .dark {
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
@@ -66,13 +66,29 @@ body {
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Custom scrollbar styles */
+  ::-webkit-scrollbar {
+    width: 2px;
+    box-shadow: 0 0 10px rgba(126, 34, 206, 0.5); /* Add glow effect */
+    position: absolute; /* Position the scrollbar on the left */
+    left: 0; /* Align the scrollbar to the left */
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: #4b5563; /* Gray background */
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: #7e22ce; /* Purple scroller */
+    box-shadow: 0 0 10px rgba(126, 34, 206, 0.5); /* Add glow effect */
   }
 }

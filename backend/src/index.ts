@@ -1,41 +1,104 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import dotenv from "dotenv";
-import OpenAI from "openai";
-
 import { cors } from "hono/cors";
+import OpenAI from "openai";
+import { zValidator } from "@hono/zod-validator";
+import { promptSchema } from "../utils/schema.js";
+import { z } from "zod";
+import { BASE_PROMPT, BASE_PROMPT_NODE, BASE_PROMPT_REACT } from "./prompts.js";
 
+// Load environment variables
 dotenv.config();
 
+// Create a new Hono app
 const app = new Hono();
+// Create a new OpenAI instance
 const openai = new OpenAI();
 
 // Enable CORS
-app.use('*', cors({
-  origin: '*', // Update with your actual domain in production
-  allowMethods: ['GET', 'POST'], // Add POST method
-}));
+app.use(
+  "*",
+  cors({
+    origin: "*", // Update with your actual domain in production
+    allowMethods: ["GET", "POST"], // Add POST method
+  })
+);
 
 // Define a POST handler for the /template route
-app.post('/template', async (c) => {
-  const data = await c.req.json();
-  console.log('Received data:', data);
-
-  // Example response
-  return c.json({ success: true, message: 'Data received successfully!' });
-});
+app.post(
+  "/template",
+  zValidator("json", promptSchema, (result, c) => {
+    if (!result.success) {
+      // Return a custom error response if validation fails
+      return c.json(
+        { error: "Invalid input", message: result.error.issues[0].message },
+        400
+      );
+    }
+  }),
+  async (c) => {
+    const { message } = c.req.valid("json");
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content:
+            "Return either node or react based on what do you think this project should be. Only return a single word either 'node' or 'react'. Do not return anything extra",
+        },
+        { role: "user", content: message },
+      ],
+      temperature: 0, // closer to 0 for analytical and 1 for creative
+      max_tokens: 100,
+    });
+    const project = (response.choices[0]?.message?.content || "") as string;
+    console.log("Received data:", project);
+    if (project === "react") {
+      return c.json(
+        {
+          prompts: [
+            BASE_PROMPT,
+            `Here is an artifact that contains all files of the project visible to you.\nConsider the contents of ALL files in the project.\n\n${BASE_PROMPT_REACT}\n\nHere is a list of files that exist on the file system but are not being shown to you:\n\n  - .gitignore\n  - package-lock.json\n`,
+          ],
+          uiPrompts: [BASE_PROMPT_REACT],
+        },
+        200
+      );
+    }
+    if (project === "node") {
+      return c.json(
+        {
+          prompts: [
+            `Here is an artifact that contains all files of the project visible to you.\nConsider the contents of ALL files in the project.\n\n${BASE_PROMPT_NODE}\n\nHere is a list of files that exist on the file system but are not being shown to you:\n\n  - .gitignore\n  - package-lock.json\n`,
+          ],
+          uiPrompt: [BASE_PROMPT_NODE],
+        },
+        200
+      );
+    }
+    return c.json({ message: "You Can't Access This!" }, 403);
+  }
+);
 
 app.get("/chat", async (c) => {
   const stream = await openai.chat.completions.create({
     model: "gpt-4o-mini",
-    messages: [{ role: "user", content: "can you tell me a joke" }],
+    messages: [
+      {
+        role: "system",
+        content:
+          "Return either node or react based on what do you think this project should be. Only return a single word either 'node' or 'react'. Do not return anything extra",
+      },
+      { role: "user", content: "can you tell me a joke" },
+    ],
     temperature: 0, // closer to 0 for analytical and 1 for creative
     max_tokens: 100,
     stream: true,
   });
   for await (const chunk of stream) {
     process.stdout.write(chunk.choices[0]?.delta?.content || "");
-}
+  }
   // return new Response(
   //   new ReadableStream({
   //     async start(controller) {
@@ -63,7 +126,7 @@ app.get("/chat", async (c) => {
 });
 
 const port = 3000;
-console.log(`Server is running on http://localhost:${port}`);
+console.log(`Server is running on http://localhost:${port}\n`);
 
 serve({
   fetch: app.fetch,

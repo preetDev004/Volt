@@ -6,9 +6,11 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.13.7",
+    "@hono/zod-validator": "^0.4.2",
     "dotenv": "^16.4.7",
     "hono": "^4.6.13",
-    "openai": "^4.76.1"
+    "openai": "^4.76.3",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@types/node": "^20.11.17",
