@@ -1,16 +1,16 @@
-import { useFetcher } from "@remix-run/react";
+import { Form, useNavigation } from "@remix-run/react";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight } from "lucide-react";
 
 export default function ChatInput() {
-  const fetcher = useFetcher();
   const [message, setMessage] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const navigation = useNavigation();
 
   const isSubmitting =
-    fetcher.state === "submitting" || fetcher.state === "loading";
+    navigation.state === "submitting" || navigation.state === "loading";
 
   const adjustTextareaHeight = () => {
     const textarea = textareaRef.current;
@@ -24,29 +24,27 @@ export default function ChatInput() {
     adjustTextareaHeight();
   }, [message]);
 
-  const submitMessage = () => {
-    const trimmedMessage = message.trim();
-    if (!trimmedMessage) return;
-
-    fetcher.submit({ message: trimmedMessage }, { method: "post" });
-    setMessage("");
-  };
-
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    submitMessage();
+    const trimmedMessage = message.trim();
+    if (!trimmedMessage) {
+      e.preventDefault();
+      return;
+    }
+    setMessage("");
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault(); // Prevent default form submission
-      submitMessage();
+      e.preventDefault(); // Prevent the default "Enter" behavior (e.g., new line in the textarea).
+      const form = textareaRef.current?.form; // Get the associated form element.
+      if (form) {
+        form.requestSubmit(); // Programmatically trigger the form submission.
+      }
     }
   };
-
   return (
     <div className="w-full max-w-[400px] mx-auto h-auto sticky bottom-0 mb-4 overflow-hidden backdrop-blur-sm">
-      <fetcher.Form onSubmit={handleSubmit} method="post" className="">
+      <Form onSubmit={handleSubmit} method="post" action="/chat" className="">
         <Textarea
           aria-label="Message"
           className="text-white bg-black-2 border-gray-400 p-4 pr-14 rounded-md focus:outline-none"
@@ -93,7 +91,7 @@ export default function ChatInput() {
             <ArrowRight />
           )}
         </Button>
-      </fetcher.Form>
+      </Form>
     </div>
   );
 }

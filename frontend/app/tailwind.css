@@ -9,6 +9,7 @@ body {
   @media (prefers-color-scheme: dark) {
     color-scheme: dark;
   }
+  scroll-behavior: smooth;
 }
 
 @layer base {
@@ -76,18 +77,34 @@ body {
   }
 
   /* Custom scrollbar styles */
-  ::-webkit-scrollbar {
-    width: 2px;
-    box-shadow: 0 0 10px rgba(126, 34, 206, 0.5); /* Add glow effect */
-    position: absolute; /* Position the scrollbar on the left */
-    left: 0; /* Align the scrollbar to the left */
-  }
+
 
   ::-webkit-scrollbar-track {
-    background-color: #4b5563; /* Gray background */
+    background-color: #4b556340; /* Gray background */
   }
 
   ::-webkit-scrollbar-thumb {
+    background-color: #7e22ce; /* Purple scroller */
+  }
+  .scrollbar-left {
+    direction: rtl; /* Flip the content direction */
+  }
+  
+  .scrollbar-left > * {
+    direction: ltr; /* Restore normal direction for content */
+    overflow-y: scroll;
+  }
+  
+  .scrollbar-left::-webkit-scrollbar {
+    width: 2px;
+    left: 0; /* Position scrollbar on the left */
+  }
+  
+  .scrollbar-left::-webkit-scrollbar-track {
+    background-color: #4b55634e; /* Gray background */
+  }
+  
+  .scrollbar-left::-webkit-scrollbar-thumb {
     background-color: #7e22ce; /* Purple scroller */
     box-shadow: 0 0 10px rgba(126, 34, 206, 0.5); /* Add glow effect */
   }
