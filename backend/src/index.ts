@@ -5,8 +5,12 @@ import { cors } from "hono/cors";
 import OpenAI from "openai";
 import { zValidator } from "@hono/zod-validator";
 import { chatSchema, promptSchema } from "../utils/schema.js";
-import { BASE_PROMPT, BASE_PROMPT_NODE, BASE_PROMPT_REACT } from "./prompts.js";
-import { z } from "zod";
+import {
+  BASE_PROMPT,
+  BASE_PROMPT_NODE,
+  BASE_PROMPT_REACT,
+  getSystemPrompt,
+} from "./prompts.js";
 import type { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 
 // Load environment variables
@@ -82,7 +86,7 @@ app.post(
   }
 );
 
-app.get(
+app.post(
   "/chat",
   zValidator("json", chatSchema, (result, c) => {
     if (!result.success) {
@@ -94,41 +98,21 @@ app.get(
     }
   }),
   async (c) => {
-    const  messages = c.req.valid("json");
+    const data = c.req.valid("json");
     const stream = await openai.chat.completions.create({
       model: "gpt-4o-mini",
-      messages: messages as ChatCompletionMessageParam[],
+      messages: [
+        { role: "system", content: getSystemPrompt() },
+        ...(data.messages as ChatCompletionMessageParam[]),
+      ],
       temperature: 0, // closer to 0 for analytical and 1 for creative
-      max_tokens: 100,
+      max_tokens: 10000,
       stream: true,
     });
     for await (const chunk of stream) {
       process.stdout.write(chunk.choices[0]?.delta?.content || "");
     }
-    // return new Response(
-    //   new ReadableStream({
-    //     async start(controller) {
-    //       try {
-    //         for await (const chunk of stream) {
-    //           const content = chunk.choices[0]?.delta?.content || ''
-    //           if (content) {
-    //             controller.enqueue(content)
-    //           }
-    //         }
-    //         controller.close()
-    //       } catch (error) {
-    //         controller.error(error)
-    //       }
-    //     }
-    //   }),
-    //   {
-    //     headers: {
-    //       'Content-Type': 'text/plain',
-    //       'Transfer-Encoding': 'chunked'
-    //     }
-    //   }
-    // )
-    // return c.json(response);
+    return c.json({ success: true });
   }
 );
 

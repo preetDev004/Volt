@@ -6,11 +6,14 @@ html,
 body {
   @apply bg-white dark:bg-gray-950;
 
+
   @media (prefers-color-scheme: dark) {
     color-scheme: dark;
   }
+
   scroll-behavior: smooth;
 }
+
 
 @layer base {
   :root {
@@ -78,23 +81,15 @@ body {
 
   /* Custom scrollbar styles */
 
-
-  ::-webkit-scrollbar-track {
-    background-color: #4b556340; /* Gray background */
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background-color: #7e22ce; /* Purple scroller */
-  }
   .scrollbar-left {
-    direction: rtl; /* Flip the content direction */
+     direction: rtl;/* Flip the content direction */
+     scroll-behavior:smooth;
   }
   
   .scrollbar-left > * {
     direction: ltr; /* Restore normal direction for content */
-    overflow-y: scroll;
   }
-  
+
   .scrollbar-left::-webkit-scrollbar {
     width: 2px;
     left: 0; /* Position scrollbar on the left */

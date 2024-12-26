@@ -4,9 +4,12 @@ export const promptSchema = z.object({
   message: z.string(),
 }).strict()
 
-export const chatSchema = z.array(
+export const chatSchema = 
   z.object({
-    role: z.string(),
-    content: z.string(),
+    messages: z.array(
+      z.object({
+        role: z.string(),
+        content: z.string(),
+      })
+    )
   })
-)
