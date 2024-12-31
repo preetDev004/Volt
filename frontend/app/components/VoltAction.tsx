@@ -1,12 +1,12 @@
 import { Step } from "../type";
 
-const VoltAction = ({ steps }: { steps: Step[] | undefined }) => {
-  if (!steps) {
+const VoltAction = ({ steps }: { steps: Step[] }) => {
+  if (!steps.length) {
     return null;
   }
+
   return (
     <div className="h-[calc(100vh-200px)] w-800 scrollbar-left overflow-y-scroll p-2 cursor-text">
-      {/* <Steps /> */}
       {steps.map((step) => (
         <div
           key={step.id}

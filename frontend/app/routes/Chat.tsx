@@ -3,13 +3,14 @@ import ChatInput from "../components/ChatInput";
 import { useActionData } from "@remix-run/react";
 import FileExplorer from "../components/FileExplorer";
 import CodeEditor from "../components/CodeEditor";
-import VoltAction from "../components/VoltAction";
 import { useFileSystem } from "../hooks/useFileSystem";
 import { FileOperations } from "../lib/fileOperations";
 import { Button } from "../components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BACKEND_URL } from "../config";
 import { parseXml } from "../lib/parseXml";
+import { Step } from "../type";
+import VoltAction from "../components/VoltAction";
 
 export async function action({ request }: { request: Request }) {
   try {
@@ -31,28 +32,26 @@ export async function action({ request }: { request: Request }) {
     }
     const templateData = await templateResponse.json();
 
-    // const chatResponse = await fetch(`${BACKEND_URL}/chat`, {
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify({
-    //     messages: [...templateData.prompts, message].map((item) => ({
-    //       role: "user",
-    //       content: item,
-    //     })),
-    //   }),
-    // });
+    const chatResponse = await fetch(`${BACKEND_URL}/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messages: [...templateData.prompts, message].map((item) => ({
+          role: "user",
+          content: item,
+        })),
+      }),
+    });
 
-    // console.log(chatResponse);
+    console.log(chatResponse);
 
-    // if (!chatResponse.ok) {
-    //   return {
-    //     success: false,
-    //     error: "Backend request failed",
-    //   };
-    // }
-    //TODO: Extract UI prompts using xml parser.
+    if (!chatResponse.ok) {
+      return {
+        success: false,
+        error: "Backend request failed",
+      };
+    }
     const steps = parseXml(templateData.uiPrompts[0]);
-    console.log("Steps:", steps);
 
     return {
       success: true,
@@ -70,7 +69,22 @@ export async function action({ request }: { request: Request }) {
 
 const Chat = () => {
   const [isCode, setIsCode] = useState(true);
+  const [projectSteps, setProjectSteps] = useState<Step[]>([]);
   const actionData = useActionData<typeof action>();
+
+  useEffect(() => {
+    if (actionData?.steps) {
+      setProjectSteps(prevSteps => {
+        if (prevSteps.length === 0) {
+          return actionData.steps;
+        }
+        const existingIds = new Set(prevSteps.map(step => step.id));
+        const uniqueNewSteps = actionData.steps.filter(step => !existingIds.has(step.id));
+        return [...prevSteps, ...uniqueNewSteps];
+      });
+    }
+  }, [actionData?.steps]);
+
   const {
     files,
     selectedFile,
@@ -111,7 +125,7 @@ const Chat = () => {
       <Navbar />
       <div className="flex flex-col md:flex-row h-full gap-6 mt-4">
         <div className="flex flex-col flex-1 gap-5 z-1">
-          <VoltAction steps={actionData?.steps} />
+        {actionData?.steps && <VoltAction steps={projectSteps} />}
           <div
             className={`${
               actionData?.steps
