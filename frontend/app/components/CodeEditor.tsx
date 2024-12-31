@@ -1,13 +1,8 @@
 import { useRef } from "react";
 import type { editor } from "monaco-editor";
-import type { FileItem } from "./FileExplorer";
 import { Editor, OnMount } from "@monaco-editor/react";
+import { CodeEditorProps } from "../type";
 
-interface CodeEditorProps {
-  file?: FileItem;
-  content: string;
-  onChange: (value: string) => void;
-}
 const CodeEditor = ({ file, content, onChange }: CodeEditorProps) => {
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
 

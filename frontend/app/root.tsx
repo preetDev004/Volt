@@ -36,9 +36,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body className="bg-black-1 text-white">
+      <body className="bg-black-1 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-900/20 via-black to-black text-white">
         <main className="min-h-screen max-w-[100rem] mx-auto px-4 ">
-        
         {children}
         </main>
         <ScrollRestoration />

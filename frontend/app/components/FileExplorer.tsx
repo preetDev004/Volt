@@ -1,22 +1,9 @@
 import { useState } from "react";
 import clsx from "clsx";
-import { FileOperations } from "../lib/fileOperations";
 import ContextMenu from "./ContextMenu";
 import { Button } from "./ui/button";
+import { FileExplorerProps, FileItem } from "../type";
 
-export interface FileItem {
-  name: string;
-  path: string;
-  type: "file" | "directory";
-  children?: FileItem[];
-}
-
-interface FileExplorerProps {
-  files: FileItem[];
-  onFileSelect: (file: FileItem) => void;
-  selectedFile?: FileItem;
-  onFileOperation: (operation: FileOperations) => void;
-}
 const FileExplorer = ({
   files,
   onFileSelect,
