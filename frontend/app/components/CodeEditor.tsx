@@ -3,7 +3,7 @@ import type { editor } from "monaco-editor";
 import { Editor, OnMount } from "@monaco-editor/react";
 import { CodeEditorProps } from "../type";
 
-const CodeEditor = ({ file, content, onChange }: CodeEditorProps) => {
+const CodeEditor = ({ file }: CodeEditorProps) => {
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
 
   const handleEditorDidMount: OnMount = (editor) => {
@@ -46,15 +46,15 @@ const CodeEditor = ({ file, content, onChange }: CodeEditorProps) => {
       <Editor
         height="100%"
         defaultLanguage={getLanguage(file.name)}
-        value={content}
+        value={file.content || ''}
         theme="vs-dark"
-        onChange={(value) => onChange(value || "")}
         onMount={handleEditorDidMount}
         options={{
           fontSize: 14,
           minimap: { enabled: false },
           scrollBeyondLastLine: false,
           automaticLayout: true,
+          readOnly: true,
           tabSize: 2,
           wordWrap: "on",
           padding: { top: 16 },

@@ -4,7 +4,7 @@ import { Button } from "./ui/button";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight } from "lucide-react";
 
-export default function ChatInput() {
+export default function ChatInput({placeholder}: {placeholder: string}) {
   const [message, setMessage] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const navigation = useNavigation();
@@ -43,16 +43,16 @@ export default function ChatInput() {
     }
   };
   return (
-    <div className="w-full max-w-[400px] mx-auto h-auto sticky bottom-0 mb-4 overflow-hidden backdrop-blur-sm">
+    <div className="w-full max-w-[500px] mx-auto h-auto sticky bottom-0 mb-4 overflow-hidden backdrop-blur-sm">
       <Form onSubmit={handleSubmit} method="post" action="/chat" className="">
         <Textarea
           aria-label="Message"
-          className="text-white bg-black-2 border-gray-400 p-4 pr-14 rounded-md focus:outline-none"
+          className="text-white bg-black-2 border-gray-400 p-4 pr-14 rounded-md focus:outline-none placeholder:text-gray-400"
           ref={textareaRef}
           name="message"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          placeholder="Type your message..."
+          placeholder={placeholder}
           onKeyDown={handleKeyDown}
         />
         <Button

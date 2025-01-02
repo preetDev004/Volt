@@ -1,10 +1,9 @@
-import { FileOperations } from "./lib/fileOperations";
-
 export interface FileItem {
   name: string;
-  path: string;
-  type: "file" | "directory";
+  type: 'file' | 'folder';
   children?: FileItem[];
+  content?: string;
+  path: string;
 }
 
 export enum StepType {
@@ -23,16 +22,22 @@ export interface Step {
   path?: string;
   status: "pending" | "in-progress" | "completed";
 }
+export interface Project {
+  prompt: string;
+  steps: Step[];
+}
 
 // prop types
+export interface CodeEditorProps {
+  file: FileItem | null;
+}
 export interface FileExplorerProps {
   files: FileItem[];
   onFileSelect: (file: FileItem) => void;
-  selectedFile?: FileItem;
-  onFileOperation: (operation: FileOperations) => void;
 }
-export interface CodeEditorProps {
-  file?: FileItem;
-  content: string;
-  onChange: (value: string) => void;
+
+export interface FileNodeProps {
+  item: FileItem;
+  depth: number;
+  onFileClick: (file: FileItem) => void;
 }
