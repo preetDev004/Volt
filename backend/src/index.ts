@@ -107,12 +107,14 @@ app.post(
       ],
       temperature: 0, // closer to 0 for analytical and 1 for creative
       max_tokens: 10000,
-      stream: true,
+      // stream: true,
     });
-    for await (const chunk of stream) {
-      process.stdout.write(chunk.choices[0]?.delta?.content || "");
-    }
-    return c.json({ success: true });
+    // for await (const chunk of stream) {
+    //   process.stdout.write(chunk.choices[0]?.delta?.content || "");
+    // }
+
+    // TODO: Send the content/data to the client as a stream.
+    return c.json({ data: stream.choices[0]?.message?.content }, 200);
   }
 );
 
