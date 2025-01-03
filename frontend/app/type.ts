@@ -27,6 +27,18 @@ export interface Project {
   steps: Step[];
 }
 
+export interface WebContainerFile {
+  file: {
+    contents: string;
+  }
+}
+
+export interface WebContainerDirectory {
+  directory: {
+    [key: string]: WebContainerFile | WebContainerDirectory;
+  }
+}
+
 // prop types
 export interface CodeEditorProps {
   file: FileItem | null;

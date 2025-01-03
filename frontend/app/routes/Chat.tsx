@@ -1,14 +1,17 @@
-import Navbar from "../components/Navbar";
-import ChatInput from "../components/ChatInput";
 import { useActionData } from "@remix-run/react";
-import CodeEditor from "../components/CodeEditor";
-import { Button } from "../components/ui/button";
 import { useEffect, useState } from "react";
-import { BACKEND_URL } from "../config";
-import { parseXml } from "../lib/parseXml";
-import { FileItem, Step, StepType } from "../type";
-import VoltAction from "../components/VoltAction";
+import ChatInput from "../components/ChatInput";
+import CodeEditor from "../components/CodeEditor";
 import { FileExplorer } from "../components/FileExplorer";
+import { Button } from "../components/ui/button";
+import VoltAction from "../components/VoltAction";
+import { BACKEND_URL } from "../config";
+import useWebContainer from "../hooks/useWebContainer";
+import { mountStructure } from "../lib/mountStructure";
+import { parseXml } from "../lib/parseXml";
+import { FileItem, Step } from "../type";
+import { folderStructure } from "../lib/folderStructure";
+import Navbar from "../components/Navbar";
 
 export async function action({ request }: { request: Request }) {
   try {
@@ -29,32 +32,35 @@ export async function action({ request }: { request: Request }) {
       };
     }
     const templateData = await templateResponse.json();
+    const templateSteps = parseXml(templateData.uiPrompts[0]);
 
-    // const chatResponse = await fetch(`${BACKEND_URL}/chat`, {
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify({
-    //     messages: [...templateData.prompts, message].map((item) => ({
-    //       role: "user",
-    //       content: item,
-    //     })),
-    //   }),
-    // });
-
-    // console.log(chatResponse);
-
-    // if (!chatResponse.ok) {
-    //   return {
-    //     success: false,
-    //     error: "Backend request failed",
-    //   };
-    // }
-    const steps = parseXml(templateData.uiPrompts[0]);
+    const chatResponse = await fetch(`${BACKEND_URL}/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messages: [
+          ...templateData.prompts,
+          ...templateData.uiPrompts,
+          message,
+        ].map((item) => ({
+          role: "user",
+          content: item,
+        })),
+      }),
+    });
+    if (!chatResponse.ok) {
+      return {
+        success: false,
+        error: "Backend request failed",
+      };
+    }
+    const chatData = await chatResponse.json();
+    const chatSteps = parseXml(chatData.data);
+    console.log(templateSteps, chatSteps);
 
     return {
       success: true,
-      // prompts: prompts,
-      steps: steps,
+      steps: [...templateSteps, ...chatSteps],
     };
   } catch (error) {
     console.error("Action error:", error);
@@ -66,6 +72,7 @@ export async function action({ request }: { request: Request }) {
 }
 
 const Chat = () => {
+  const webContainer = useWebContainer();
   const [isCode, setIsCode] = useState(true);
   const [projectSteps, setProjectSteps] = useState<Step[]>([]);
   const [files, setFiles] = useState<FileItem[]>([]);
@@ -76,81 +83,42 @@ const Chat = () => {
     if (actionData?.steps) {
       setProjectSteps((prevSteps) => {
         if (prevSteps.length === 0) {
-          return actionData.steps;
+          return actionData.steps.map((step) => ({
+            ...step,
+            status: "pending" as Step["status"],
+          }));
         }
-        const existingIds = new Set(prevSteps.map((step) => step.id));
-        const uniqueNewSteps = actionData.steps.filter(
-          (step) => !existingIds.has(step.id)
-        );
-        return [...prevSteps, ...uniqueNewSteps];
+        const newSteps = actionData.steps.map((step) => ({
+          ...step,
+          status: "pending" as Step["status"],
+        }));
+        return [...prevSteps, ...newSteps];
       });
     }
   }, [actionData?.steps]);
 
   // update the folders/files based on the project steps and response of LLM.
   useEffect(() => {
-    let originalFiles = [...files];
-    let updateHappened = false;
-    projectSteps.filter(({status}) => status === "pending").map(step => {
-      updateHappened = true;
-      if (step?.type === StepType.CreateFile) {
-        let parsedPath = step.path?.split("/") ?? []; // ["src", "components", "App.tsx"]
-        let currentFileStructure = [...originalFiles]; // {}
-        const finalAnswerRef = currentFileStructure;
-  
-        let currentFolder = ""
-        while(parsedPath.length) {
-          currentFolder =  `${currentFolder}/${parsedPath[0]}`;
-          const currentFolderName = parsedPath[0];
-          parsedPath = parsedPath.slice(1);
-  
-          if (!parsedPath.length) {
-            // final file
-            const file = currentFileStructure.find(x => x.path === currentFolder)
-            if (!file) {
-              currentFileStructure.push({
-                name: currentFolderName,
-                type: 'file',
-                path: currentFolder,
-                content: step.code
-              })
-            } else {
-              file.content = step.code;
-            }
-          } else {
-            /// in a folder
-            const folder = currentFileStructure.find(x => x.path === currentFolder)
-            if (!folder) {
-              // create the folder
-              currentFileStructure.push({
-                name: currentFolderName,
-                type: 'folder',
-                path: currentFolder,
-                children: []
-              })
-            }
-  
-            currentFileStructure = currentFileStructure.find(x => x.path === currentFolder)!.children!;
-          }
-        }
-        originalFiles = finalAnswerRef;
-      }
-
-    })
+    const {updateHappened, originalFiles } = folderStructure(files, projectSteps);
 
     if (updateHappened) {
       // set the states only if the update happened (To avoid infinite rendering)
-      setFiles(originalFiles)
-      setProjectSteps(steps => steps.map((s: Step) => {
-        return {
-          ...s,
-          status: "completed"
-        }
-        
-      }))
+      setFiles(originalFiles);
+      setProjectSteps((steps) =>
+        steps.map((s: Step) => {
+          return {
+            ...s,
+            status: "completed",
+          };
+        })
+      );
     }
-    console.log(files);
   }, [projectSteps, files]);
+
+  useEffect(() => {
+    console.log(mountStructure(files));
+    webContainer?.mount(mountStructure(files));
+  })
 
   return (
     <div className="min-h-screen">
@@ -212,14 +180,8 @@ const Chat = () => {
             </div>
             {isCode ? (
               <div className="flex flex-row w-full h-full">
-                <FileExplorer
-                  files={files}
-                  onFileSelect={setSelectedFile}
-                />
-                <CodeEditor
-                  file={selectedFile}
-                  
-                />
+                <FileExplorer files={files} onFileSelect={setSelectedFile} />
+                <CodeEditor file={selectedFile} />
               </div>
             ) : (
               <div className="flex flex-row w-full h-full">preview div</div>
