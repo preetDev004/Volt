@@ -24,6 +24,9 @@ export default function handleRequest(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   loadContext: AppLoadContext
 ) {
+
+  responseHeaders.set("Cross-Origin-Embedder-Policy", "require-corp");
+  responseHeaders.set("Cross-Origin-Opener-Policy", "same-origin");
   return isbot(request.headers.get("user-agent") || "")
     ? handleBotRequest(
         request,
@@ -60,6 +63,8 @@ function handleBotRequest(
           const stream = createReadableStreamFromReadable(body);
 
           responseHeaders.set("Content-Type", "text/html");
+          responseHeaders.set("Cross-Origin-Embedder-Policy", "require-corp");
+          responseHeaders.set("Cross-Origin-Opener-Policy", "same-origin");
 
           resolve(
             new Response(stream, {
@@ -110,6 +115,8 @@ function handleBrowserRequest(
           const stream = createReadableStreamFromReadable(body);
 
           responseHeaders.set("Content-Type", "text/html");
+          responseHeaders.set("Cross-Origin-Embedder-Policy", "require-corp");
+          responseHeaders.set("Cross-Origin-Opener-Policy", "same-origin");
 
           resolve(
             new Response(stream, {

@@ -229,28 +229,29 @@ Here are some examples of correct usage of artifacts:
 
       <voltArtifact id="bouncing-ball-react" title="Bouncing Ball with Gravity in React">
         <voltAction type="file" filePath="package.json">
-          {
-            "name": "bouncing-ball",
-            "private": true,
-            "version": "0.0.0",
-            "type": "module",
-            "scripts": {
-              "dev": "vite",
-              "build": "vite build",
-              "preview": "vite preview"
-            },
-            "dependencies": {
-              "react": "^18.2.0",
-              "react-dom": "^18.2.0",
-              "react-spring": "^9.7.1"
-            },
-            "devDependencies": {
-              "@types/react": "^18.0.28",
-              "@types/react-dom": "^18.0.11",
-              "@vitejs/plugin-react": "^3.1.0",
-              "vite": "^4.2.0"
-            }
+        {
+          "name": "bouncing-ball",
+          "private": true,
+          "version": "0.0.0",
+          "type": "module",
+          "scripts": {
+            "dev": "vite",
+            "build": "vite build",
+            "preview": "vite preview"
+          },
+          "dependencies": {
+            "react": "^18.2.0",
+            "react-dom": "^18.2.0",
+            "react-router-dom": "^6.22.0",
+            "react-spring": "^9.7.1"
+          },
+          "devDependencies": {
+            "@types/react": "^18.0.28",
+            "@types/react-dom": "^18.0.11",
+            "@vitejs/plugin-react": "^3.1.0",
+            "vite": "^4.2.0"
           }
+        }
         </voltAction>
 
         <voltAction type="file" filePath="index.html">
@@ -284,7 +285,8 @@ export const CONTINUE_PROMPT = stripIndents`
   Continue your prior response. IMPORTANT: Immediately begin from where you left off without any interruptions.
   Do not repeat any content, including artifact and action tags.
 `;
-export const BASE_PROMPT = "For all designs I ask you to make, have them be beautiful, not cookie cutter. Make webpages that are fully featured and worthy for production.\n\nBy default, this template supports JSX syntax with Tailwind CSS classes, React hooks, and Lucide React for icons. Do not install other packages for UI themes, icons, etc unless absolutely necessary or I request them.\n\nUse icons from lucide-react for logos.\n\nUse stock photos from unsplash where appropriate, only valid URLs you know exist. Do not download the images, only link to them in image tags.\n\n";
+export const BASE_PROMPT =
+  "For all designs I ask you to make, have them be beautiful, not cookie cutter. Make webpages that are fully featured and worthy for production.\n\nBy default, this template supports JSX syntax with Tailwind CSS classes, React hooks, and Lucide React for icons. Do not install other packages for UI themes, icons, etc unless absolutely necessary or I request them.\n\nUse icons from lucide-react for logos.\n\nUse stock photos from unsplash where appropriate, only valid URLs you know exist. Do not download the images, only link to them in image tags.\n\nIMPORTANT: Add all required dependencies to the `package.json` already and try to avoid `npm i <pkg>` if possible and return the updated `package.json`!\n\n";
 
 export const BASE_PROMPT_NODE =
   '<voltArtifact id="project-import" title="Project Files"><voltAction type="file" filePath="index.js">// run `node index.js` in the terminal\n\nconsole.log(`Hello Node.js v${process.versions.node}!`);\n</voltAction><voltAction type="file" filePath="package.json">{\n  "name": "node-starter",\n  "private": true,\n  "scripts": {\n    "test": "echo \\"Error: no test specified\\" && exit 1"\n  }\n}\n</voltAction></voltArtifact>';

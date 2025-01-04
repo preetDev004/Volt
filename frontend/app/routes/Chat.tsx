@@ -9,9 +9,15 @@ import { BACKEND_URL } from "../config";
 import useWebContainer from "../hooks/useWebContainer";
 import { mountStructure } from "../lib/mountStructure";
 import { parseXml } from "../lib/parseXml";
-import { FileItem, Step } from "../type";
+import {
+  FileItem,
+  Step,
+  WebContainerDirectory,
+  WebContainerFile,
+} from "../type";
 import { folderStructure } from "../lib/folderStructure";
 import Navbar from "../components/Navbar";
+import Preview from "../components/Preview";
 
 export async function action({ request }: { request: Request }) {
   try {
@@ -74,8 +80,11 @@ export async function action({ request }: { request: Request }) {
 const Chat = () => {
   const webContainer = useWebContainer();
   const [isCode, setIsCode] = useState(true);
-  const [projectSteps, setProjectSteps] = useState<Step[]>([]);
   const [files, setFiles] = useState<FileItem[]>([]);
+  const [mountedFiles, setMountedFiles] = useState<
+    Record<string, WebContainerDirectory | WebContainerFile>
+  >({});
+  const [projectSteps, setProjectSteps] = useState<Step[]>([]);
   const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
   const actionData = useActionData<typeof action>();
 
@@ -99,11 +108,15 @@ const Chat = () => {
 
   // update the folders/files based on the project steps and response of LLM.
   useEffect(() => {
-    const {updateHappened, originalFiles } = folderStructure(files, projectSteps);
+    const { updateHappened, originalFiles } = folderStructure(
+      files,
+      projectSteps
+    );
 
     if (updateHappened) {
       // set the states only if the update happened (To avoid infinite rendering)
       setFiles(originalFiles);
+      setMountedFiles(() => mountStructure(originalFiles));
       setProjectSteps((steps) =>
         steps.map((s: Step) => {
           return {
@@ -116,9 +129,9 @@ const Chat = () => {
   }, [projectSteps, files]);
 
   useEffect(() => {
-    console.log(mountStructure(files));
-    webContainer?.mount(mountStructure(files));
-  })
+    console.log(mountedFiles);
+    webContainer?.mount(mountedFiles);
+  }, [mountedFiles]);
 
   return (
     <div className="min-h-screen">
@@ -154,7 +167,7 @@ const Chat = () => {
         </div>
         {actionData?.steps && (
           <div className="w-[72%] min-h-full mb-4 bg-black-2 flex flex-col right-0 rounded">
-            <div className="px-2 py-2">
+            <div className="px-2 py-2 border-b border-zinc-700">
               <div className="w-fit h-8 bg-black-1 rounded-full flex gap-2 transition-all duration-300 ease-in-out">
                 <Button
                   onClick={() => setIsCode(true)}
@@ -180,11 +193,15 @@ const Chat = () => {
             </div>
             {isCode ? (
               <div className="flex flex-row w-full h-full">
-                <FileExplorer files={files} onFileSelect={setSelectedFile} />
+                <div className="w-[20%] h-full">
+                  <FileExplorer files={files} onFileSelect={setSelectedFile} />
+                </div>
                 <CodeEditor file={selectedFile} />
               </div>
             ) : (
-              <div className="flex flex-row w-full h-full">preview div</div>
+              <div className="flex flex-row w-full h-full">
+                <Preview files={mountedFiles} webContainer={webContainer} />
+              </div>
             )}
           </div>
         )}

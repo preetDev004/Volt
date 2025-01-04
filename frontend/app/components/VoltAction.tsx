@@ -18,9 +18,9 @@ const VoltAction = ({ steps }: { steps: Step[] }) => {
 
   return (
     <div className="h-[calc(100vh-200px)] w-800 scrollbar-left overflow-y-scroll p-2 cursor-text">
-      {steps.map((step) => (
+      {steps.map((step, index) => (
         <div
-          key={step.id}
+          key={index}
           className="rounded bg-black-2 w-full p-2 sm:p-4 mb-2 sm:mb-4"
         >
           <div className="flex items-center gap-2">
