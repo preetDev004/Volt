@@ -3,7 +3,7 @@ import { FileExplorerProps, FileNodeProps } from "../type";
 import { useState } from "react";
 import { Button } from "./ui/button";
 
-function FileNode({isSelected, item, depth, onFileClick }: FileNodeProps) {
+function FileNode({ isSelected, item, depth, onFileClick }: FileNodeProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleClick = () => {
@@ -17,7 +17,11 @@ function FileNode({isSelected, item, depth, onFileClick }: FileNodeProps) {
   return (
     <div className="select-none">
       <Button
-        className={`flex w-full p-2 ${isSelected?.path === item.path ? "bg-purple-700/60 hover:bg-purple-700/60" : "bg-transparent hover:bg-zinc-600"}  cursor-pointer`}
+        className={`flex w-full p-2 ${
+          isSelected?.path === item.path
+            ? "bg-purple-700/60 hover:bg-purple-700/60"
+            : "bg-transparent hover:bg-zinc-600"
+        }  cursor-pointer`}
         style={{ paddingLeft: `${depth * 1.5}rem` }}
         onClick={handleClick}
       >
@@ -56,7 +60,11 @@ function FileNode({isSelected, item, depth, onFileClick }: FileNodeProps) {
   );
 }
 
-export function FileExplorer({selectedFile, files, onFileSelect }: FileExplorerProps) {
+export function FileExplorer({
+  selectedFile,
+  files,
+  onFileSelect,
+}: FileExplorerProps) {
   return (
     <div className="bg-black-1 shadow-lg py-4 px-2 h-full overflow-auto">
       <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 text-gray-200">
