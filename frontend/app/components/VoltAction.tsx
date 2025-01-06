@@ -17,7 +17,7 @@ const VoltAction = ({ steps }: { steps: Step[] }) => {
   }
 
   return (
-    <div className="h-[calc(100vh-200px)] w-800 scrollbar-left overflow-y-scroll p-2 cursor-text">
+    <div className="h-[calc(100vh-240px)] sticky z-10 w-800 scrollbar-left overflow-y-scroll p-2 cursor-text">
       {steps.map((step, index) => (
         <div
           key={index}

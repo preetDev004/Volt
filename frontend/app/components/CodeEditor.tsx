@@ -36,13 +36,13 @@ const CodeEditor = ({ file }: CodeEditorProps) => {
 
   if (!file) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-gray-900 text-gray-400">
-        <p>Select a file to edit</p>
+      <div className="flex-1 flex items-center justify-center bg-black-1 text-gray-300">
+        <p>Select a file to view</p>
       </div>
     );
   }
   return (
-    <div className="flex-1 h-full w-full">
+    <div className="flex-1 max-h-full w-full">
       <Editor
         height="100%"
         defaultLanguage={getLanguage(file.name)}

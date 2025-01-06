@@ -1,3 +1,4 @@
+
 export interface FileItem {
   name: string;
   type: 'file' | 'folder';
@@ -7,8 +8,8 @@ export interface FileItem {
 }
 
 export enum StepType {
-  CreateFile,
   CreateFolder,
+  CreateFile,
   UpdateFile,
   DeleteFile,
   RunScript,
@@ -44,11 +45,13 @@ export interface CodeEditorProps {
   file: FileItem | null;
 }
 export interface FileExplorerProps {
+  selectedFile: FileItem | null;
   files: FileItem[];
   onFileSelect: (file: FileItem) => void;
 }
 
 export interface FileNodeProps {
+  isSelected: FileItem | null;
   item: FileItem;
   depth: number;
   onFileClick: (file: FileItem) => void;

@@ -1,4 +1,4 @@
-import { useActionData } from "@remix-run/react";
+import { useActionData, useNavigation } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import ChatInput from "../components/ChatInput";
 import CodeEditor from "../components/CodeEditor";
@@ -18,6 +18,7 @@ import {
 import { folderStructure } from "../lib/folderStructure";
 import Navbar from "../components/Navbar";
 import Preview from "../components/Preview";
+import Loader from "../components/Loader";
 
 export async function action({ request }: { request: Request }) {
   try {
@@ -87,6 +88,10 @@ const Chat = () => {
   const [projectSteps, setProjectSteps] = useState<Step[]>([]);
   const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
   const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
+
+  const isSubmitting =
+    navigation.state === "submitting" || navigation.state === "loading";
 
   useEffect(() => {
     if (actionData?.steps) {
@@ -108,7 +113,7 @@ const Chat = () => {
 
   // update the folders/files based on the project steps and response of LLM.
   useEffect(() => {
-    const { updateHappened, originalFiles } = folderStructure(
+    const { updateHappened, originalFiles, updatedSteps } = folderStructure(
       files,
       projectSteps
     );
@@ -116,6 +121,7 @@ const Chat = () => {
     if (updateHappened) {
       // set the states only if the update happened (To avoid infinite rendering)
       setFiles(originalFiles);
+      setProjectSteps(updatedSteps);
       setMountedFiles(() => mountStructure(originalFiles));
       setProjectSteps((steps) =>
         steps.map((s: Step) => {
@@ -134,19 +140,19 @@ const Chat = () => {
   }, [mountedFiles]);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen max-h-screen overflow-hidden">
       <Navbar />
       <div className="flex flex-col md:flex-row h-full gap-6 mt-4">
-        <div className="flex flex-col flex-1 gap-5 z-1">
+        <div className="relative flex flex-col h-full flex-1 gap-5">
           {actionData?.steps && <VoltAction steps={projectSteps} />}
           <div
             className={`${
               actionData?.steps
-                ? ""
+                ? "sticky w-full h-full z-50 bottom-0 overflow-hidden"
                 : "flex flex-col items-center justify-center h-screen -mt-20 gap-4"
             }`}
           >
-            {!actionData?.steps && (
+            {!actionData?.steps && !isSubmitting && (
               <>
                 <p className="glow-white text-2xl sm:text-5xl font-bold text-white/90">
                   What do you want to build?
@@ -156,17 +162,24 @@ const Chat = () => {
                 </p>
               </>
             )}
-            <ChatInput
-              placeholder={`${
-                actionData?.steps
-                  ? "Type your message..."
-                  : "Describe your app idea... (e.g., 'Create a task management app with dark mode!')"
-              }`}
-            />
+            {isSubmitting && !actionData?.steps ? (
+              // <div className="flex w-full h-full items-center justify-center">
+              <Loader />
+            ) : (
+              // </div>
+              <ChatInput
+                isSubmitting={isSubmitting}
+                placeholder={`${
+                  actionData?.steps
+                    ? "Type your message..."
+                    : "Describe your app idea... (e.g., 'Create a task management app with dark mode!')"
+                }`}
+              />
+            )}
           </div>
         </div>
         {actionData?.steps && (
-          <div className="w-[72%] min-h-full mb-4 bg-black-2 flex flex-col right-0 rounded">
+          <div className="w-[72%] min-h-full max-h-[90vh] mb-4 bg-black-2 flex flex-col right-0 rounded">
             <div className="px-2 py-2 border-b border-zinc-700">
               <div className="w-fit h-8 bg-black-1 rounded-full flex gap-2 transition-all duration-300 ease-in-out">
                 <Button
@@ -194,7 +207,7 @@ const Chat = () => {
             {isCode ? (
               <div className="flex flex-row w-full h-full">
                 <div className="w-[20%] h-full">
-                  <FileExplorer files={files} onFileSelect={setSelectedFile} />
+                  <FileExplorer selectedFile={selectedFile} files={files} onFileSelect={setSelectedFile} />
                 </div>
                 <CodeEditor file={selectedFile} />
               </div>

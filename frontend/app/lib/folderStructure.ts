@@ -2,8 +2,10 @@ import { FileItem, Step, StepType } from "../type";
 
 export const folderStructure = (files : FileItem[], projectSteps: Step[]) => {
   let originalFiles = [...files];
+  const updatedSteps = [...projectSteps];
   let updateHappened = false;
-  projectSteps
+
+  updatedSteps
     .filter(({ status }) => status === "pending")
     .map((step) => {
       updateHappened = true;
@@ -31,7 +33,8 @@ export const folderStructure = (files : FileItem[], projectSteps: Step[]) => {
                 content: step.code,
               });
             } else {
-              console.log("updating file");
+              step.title = `Updated ${file.path}`;
+              step.type = StepType.UpdateFile;
               file.content = step.code;
             }
           } else {
@@ -57,5 +60,5 @@ export const folderStructure = (files : FileItem[], projectSteps: Step[]) => {
         originalFiles = finalAnswerRef;
       }
     });
-    return {updateHappened, originalFiles}
+    return {updateHappened, originalFiles, updatedSteps}
 };
