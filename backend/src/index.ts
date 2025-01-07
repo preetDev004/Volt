@@ -45,7 +45,7 @@ app.post(
   async (c) => {
     const { message } = c.req.valid("json");
     const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-4o-mini-2024-07-18",
       messages: [
         {
           role: "system",
@@ -100,13 +100,13 @@ app.post(
   async (c) => {
     const data = c.req.valid("json");
     const stream = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-4o-mini-2024-07-18",
       messages: [
         { role: "system", content: getSystemPrompt() },
         ...(data.messages as ChatCompletionMessageParam[]),
       ],
       temperature: 0, // closer to 0 for analytical and 1 for creative
-      max_tokens: 10000,
+      // max_tokens: 10000,
       // stream: true,
     });
     // for await (const chunk of stream) {
