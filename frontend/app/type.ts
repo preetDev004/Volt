@@ -13,19 +13,15 @@ export enum StepType {
   UpdateFile,
   DeleteFile,
   RunScript,
+  Message
 }
 
 export interface Step {
-  id: number;
   title: string;
   type: StepType;
   code?: string;
   path?: string;
   status: "pending" | "in-progress" | "completed";
-}
-export interface Project {
-  prompt: string;
-  steps: Step[];
 }
 
 export interface WebContainerFile {

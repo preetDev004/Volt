@@ -12,6 +12,7 @@ import { parseXml } from "../lib/parseXml";
 import {
   FileItem,
   Step,
+  StepType,
   WebContainerDirectory,
   WebContainerFile,
 } from "../type";
@@ -80,6 +81,7 @@ export async function action({ request }: { request: Request }) {
 
 const Chat = () => {
   const webContainer = useWebContainer();
+  const [message, setMessage] = useState("");
   const [isCode, setIsCode] = useState(true);
   const [files, setFiles] = useState<FileItem[]>([]);
   const [mountedFiles, setMountedFiles] = useState<
@@ -139,8 +141,24 @@ const Chat = () => {
     webContainer?.mount(mountedFiles);
   }, [mountedFiles]);
 
+  useEffect(() => {
+    if (isSubmitting && message) {
+      setProjectSteps((prevSteps) => {
+        return [
+          ...prevSteps,
+          {
+            title: message,
+            type: StepType.Message,
+            status: "completed" as Step["status"],
+          },
+        ];
+      });
+    }
+    setMessage("");
+  }, [isSubmitting]);
+
   return (
-    <div className="min-h-screen max-h-screen overflow-hidden">
+    <div className="min-h-screen md:max-h-screen overflow-hidden">
       <Navbar />
       <div className="flex flex-col md:flex-row h-full gap-6 mt-4">
         <div className="relative flex flex-col h-full flex-1 gap-5">
@@ -168,6 +186,8 @@ const Chat = () => {
             ) : (
               // </div>
               <ChatInput
+                message={message}
+                setMessage={setMessage}
                 isSubmitting={isSubmitting}
                 placeholder={`${
                   actionData?.steps
@@ -193,6 +213,7 @@ const Chat = () => {
                   Code
                 </Button>
                 <Button
+                  disabled={actionData?.steps.length === 0 || isSubmitting}
                   onClick={() => setIsCode(false)}
                   className={`px-4 h-8 rounded-r-full border-t border-r ${
                     isCode
@@ -207,7 +228,11 @@ const Chat = () => {
             {isCode ? (
               <div className="flex flex-row w-full h-full">
                 <div className="w-[20%] h-full">
-                  <FileExplorer selectedFile={selectedFile} files={files} onFileSelect={setSelectedFile} />
+                  <FileExplorer
+                    selectedFile={selectedFile}
+                    files={files}
+                    onFileSelect={setSelectedFile}
+                  />
                 </div>
                 <CodeEditor file={selectedFile} />
               </div>

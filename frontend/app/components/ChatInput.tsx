@@ -1,17 +1,20 @@
 import { Form } from "@remix-run/react";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { ArrowRight } from "lucide-react";
 
 export default function ChatInput({
   placeholder,
   isSubmitting,
+  message,
+  setMessage,
 }: {
   placeholder: string;
   isSubmitting: boolean;
+  message: string;
+  setMessage: React.Dispatch<React.SetStateAction<string>>;
 }) {
-  const [message, setMessage] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const adjustTextareaHeight = () => {
@@ -32,7 +35,6 @@ export default function ChatInput({
       e.preventDefault();
       return;
     }
-    setMessage("");
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -58,7 +60,7 @@ export default function ChatInput({
             placeholder={placeholder}
             onKeyDown={handleKeyDown}
           />
-          <div className="bg-black-1 text-gray-400 text-sm p-4 border border-purple-400 border-t-0 rounded-b-md">
+          <div onClickCapture={() => textareaRef.current?.focus()} className="bg-black-1 text-gray-400 text-sm p-4 border border-purple-400 border-t-0 rounded-b-md">
             <p
               className={` transition-all duration-300 ease-in-out 
                 ${
@@ -84,7 +86,7 @@ export default function ChatInput({
             type="submit"
             className={`absolute right-4 top-6 p-2 w-8 h-8 rounded-md transition-all duration-300 ease-in-out 
                 ${
-                  message.trim() === "" || isSubmitting
+                  message.trim() === ""
                     ? "bg-gray-200 text-gray-400 -top-10 cursor-not-allowed opacity-0 -translate-y-2"
                     : "bg-purple-500 text-white hover:bg-purple-600 active:bg-purple-700 opacity-100"
                 }`}
