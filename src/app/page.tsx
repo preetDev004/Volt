@@ -1,9 +1,14 @@
-import { Button } from '@/components/ui/button';
+import { HydrateClient, prefetch, trpc } from '@/trpc/server';
+import GreetButton from './GreetButton';
+import { Suspense } from 'react';
 
-export default function Home() {
+export default async function Home() {
+  prefetch(trpc.greet.queryOptions({ text: 'world' }));
   return (
-    <main className="w-screen h-screen flex items-center justify-center">
-      <Button variant={'default'}>Test</Button>
-    </main>
+    <HydrateClient>
+      <Suspense fallback={<div>Loading...</div>}>
+        <GreetButton />
+      </Suspense>
+    </HydrateClient>
   );
 }
