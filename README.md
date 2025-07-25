@@ -25,17 +25,21 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 This project includes several tools to maintain code quality:
 
 ### Prettier
+
 - **Format code**: `pnpm format`
 - **Check formatting**: `pnpm format:check`
 
 ### ESLint
+
 - **Lint code**: `pnpm lint`
 
 ### Husky & lint-staged
+
 - **Pre-commit hooks**: Automatically format and lint staged files before commits
 - **Setup**: Husky is configured to run lint-staged on pre-commit
 
 ### Manual Setup (if needed)
+
 If you need to set up Husky manually:
 
 ```bash
