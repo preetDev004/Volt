@@ -1,0 +1,17 @@
+# This is a config for E2B sandbox template.
+# You can use template ID (s5eet8nn08oo63y9w72e) or template name (volt-nextjs-test) to create a sandbox:
+
+# Python SDK
+# from e2b import Sandbox, AsyncSandbox
+# sandbox = Sandbox("volt-nextjs-test") # Sync sandbox
+# sandbox = await AsyncSandbox.create("volt-nextjs-test") # Async sandbox
+
+# JS SDK
+# import { Sandbox } from 'e2b'
+# const sandbox = await Sandbox.create('volt-nextjs-test')
+
+team_id = "fb3771a9-a7e6-49d2-ab85-e78f800f8dfb"
+start_cmd = "/compile_page.sh"
+dockerfile = "e2b.Dockerfile"
+template_name = "volt-nextjs-test"
+template_id = "s5eet8nn08oo63y9w72e"
