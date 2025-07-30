@@ -21,6 +21,7 @@
     ]
   },
   "dependencies": {
+    "@e2b/code-interpreter": "^1.5.1",
     "@inngest/agent-kit": "^0.9.0",
     "@prisma/client": "^6.12.0",
     "@prisma/extension-accelerate": "^2.0.2",
