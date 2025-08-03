@@ -2,9 +2,15 @@ import { PROMPT } from '@/prompt';
 import { createAgent, openai } from '@inngest/agent-kit';
 import { createOrUpdateFile, readFile, terminal } from './tools';
 import { lastAssistantMessageContent } from './utils';
+import Sandbox from '@e2b/code-interpreter';
 
+export interface AgentState {
+  summary: string;
+  files: { [path: string]: string };
+  sandbox: Sandbox;
+}
 // Create a new agent with a system prompt (you can add optional tools, too)
-export const codeAgent = createAgent({
+export const codeAgent = createAgent<AgentState>({
   name: 'code-agent',
   system: PROMPT,
   description: 'An expert coding Agent',

@@ -1,6 +1,7 @@
 import { Sandbox } from '@e2b/code-interpreter';
-import { createTool } from '@inngest/agent-kit';
+import { createTool, Tool } from '@inngest/agent-kit';
 import { z } from 'zod';
+import { AgentState } from './agents';
 
 export const terminal = createTool({
   name: 'terminal',
@@ -8,7 +9,7 @@ export const terminal = createTool({
   parameters: z.object({
     command: z.string().describe('The command to run in the terminal'),
   }),
-  handler: async ({ command }, { step, network }) => {
+  handler: async ({ command }, { step, network }: Tool.Options<AgentState>) => {
     return await step?.run('terminal', async () => {
       const buffer = { stdout: '', stderr: '' };
       try {
@@ -48,7 +49,7 @@ export const createOrUpdateFile = createTool({
       )
       .describe('Array of files to create or update'),
   }),
-  handler: async ({ files }, { step, network }) => {
+  handler: async ({ files }, { step, network }: Tool.Options<AgentState>) => {
     const newFiles = await step?.run('createOrUpdateFile', async () => {
       try {
         if (!network.state.data.sandbox) {
@@ -85,7 +86,7 @@ export const readFile = createTool({
       )
       .describe('Array of files to read'),
   }),
-  handler: async ({ files }, { step, network }) => {
+  handler: async ({ files }, { step, network }: Tool.Options<AgentState>) => {
     return await step?.run('readFile', async () => {
       try {
         if (!network.state.data.sandbox) {
