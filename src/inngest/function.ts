@@ -48,19 +48,38 @@ export const codeAgentFunction = inngest.createFunction(
 
     await step.run('save-to-db', async () => {
       if (isError) {
+        // Create a project for error case too
+        const projectName = `Project-${Date.now()}`;
+        const project = await prisma.project.create({
+          data: {
+            name: projectName,
+          },
+        });
+
         return await prisma.message.create({
           data: {
             content: 'Something went wrong. Please try again.',
             role: 'ASSISTANT',
             type: 'ERROR',
+            projectId: project.id,
           },
         });
       }
+
+      // Create project with screenshot
+      const projectName = `Project-${Date.now()}`;
+      const project = await prisma.project.create({
+        data: {
+          name: projectName,
+        },
+      });
+
       return await prisma.message.create({
         data: {
           content: result.state.data.summary,
           role: 'ASSISTANT',
           type: 'RESULT',
+          projectId: project.id,
           fragment: {
             create: {
               sandboxUrl: sandboxUrl,
@@ -72,6 +91,13 @@ export const codeAgentFunction = inngest.createFunction(
       });
     });
 
+    inngest.send({
+      name: 'screenshot-agent/run',
+      data: {
+        url: sandboxUrl,
+      },
+    });
+
     return {
       url: sandboxUrl,
       title: 'fragment',
@@ -79,4 +105,10 @@ export const codeAgentFunction = inngest.createFunction(
       summary: result.state.data.summary,
     };
   }
+);
+
+export const screenshotAgentFunction = inngest.createFunction(
+  { id: 'screenshot-agent' },
+  { event: 'screenshot-agent/run' },
+  async ({ event, step }) => {}
 );
