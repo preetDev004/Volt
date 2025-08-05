@@ -1,13 +1,14 @@
-import { inngest } from '@/inngest/client';
 import prisma from '@/lib/prisma';
 import { baseProcedure, createTRPCRouter } from '@/trpc/init';
+import { generateSlug } from 'random-word-slugs';
 import { TRPCError } from '@trpc/server';
 import z from 'zod';
+import { inngest } from '@/inngest/client';
 
-export const messagesRouter = createTRPCRouter({
+export const projectsRouter = createTRPCRouter({
   getMany: baseProcedure.query(async () => {
     try {
-      return await prisma.message.findMany({
+      return await prisma.project.findMany({
         orderBy: {
           updatedAt: 'desc',
         },
@@ -15,7 +16,7 @@ export const messagesRouter = createTRPCRouter({
     } catch (error) {
       throw new TRPCError({
         code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to fetch messages',
+        message: 'Failed to fetch projects',
         cause: error,
       });
     }
@@ -28,19 +29,22 @@ export const messagesRouter = createTRPCRouter({
           .string()
           .min(1, { message: 'Prompt is required' })
           .max(10000, { message: 'Prompt is too long' }),
-        projectId: z.string().min(1, { message: 'Project ID is required' }),
       })
     )
     .mutation(async ({ input, ctx }) => {
       try {
         // Use transaction for atomic operations
         const result = await prisma.$transaction(async tx => {
-          const newMessage = await tx.message.create({
+          const newProject = await tx.project.create({
             data: {
-              content: input.prompt,
-              role: 'USER',
-              type: 'RESULT',
-              projectId: input.projectId,
+              name: generateSlug(3, { format: 'kebab' }),
+              messages: {
+                create: {
+                  content: input.prompt,
+                  role: 'USER',
+                  type: 'RESULT',
+                },
+              },
             },
           });
 
@@ -49,11 +53,11 @@ export const messagesRouter = createTRPCRouter({
             name: 'code-agent-sandbox/run',
             data: {
               message: input.prompt,
-              projectId: input.projectId,
+              projectId: newProject.id,
             },
           });
 
-          return newMessage;
+          return newProject;
         });
 
         return result;
@@ -62,7 +66,7 @@ export const messagesRouter = createTRPCRouter({
 
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to create message',
+          message: 'Failed to create project',
           cause: error,
         });
       }

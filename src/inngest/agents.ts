@@ -28,7 +28,9 @@ export const codeAgent = createAgent<AgentState>({
         network &&
         lastAssistanantMessageText.includes('<task_summary>')
       ) {
-        network.state.data.summary = lastAssistanantMessageText;
+        network.state.data.summary = lastAssistanantMessageText
+          .split('<task_summary>')[1]
+          .split('</task_summary>')[0];
       }
       return result;
     },
