@@ -1,13 +1,14 @@
 -- CreateEnum
-CREATE TYPE "MessageRole" AS ENUM ('USER', 'ASSISTANT');
+CREATE TYPE "public"."MessageRole" AS ENUM ('USER', 'ASSISTANT');
 
 -- CreateEnum
-CREATE TYPE "MessageType" AS ENUM ('RESULT', 'ERROR');
+CREATE TYPE "public"."MessageType" AS ENUM ('RESULT', 'ERROR');
 
 -- CreateTable
-CREATE TABLE "Project" (
+CREATE TABLE "public"."Project" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "screenshot" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -15,11 +16,11 @@ CREATE TABLE "Project" (
 );
 
 -- CreateTable
-CREATE TABLE "Message" (
+CREATE TABLE "public"."Message" (
     "id" TEXT NOT NULL,
     "content" TEXT NOT NULL,
-    "role" "MessageRole" NOT NULL,
-    "type" "MessageType" NOT NULL,
+    "role" "public"."MessageRole" NOT NULL,
+    "type" "public"."MessageType" NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "projectId" TEXT NOT NULL,
@@ -28,7 +29,7 @@ CREATE TABLE "Message" (
 );
 
 -- CreateTable
-CREATE TABLE "Fragment" (
+CREATE TABLE "public"."Fragment" (
     "id" TEXT NOT NULL,
     "messageId" TEXT NOT NULL,
     "sandboxUrl" TEXT NOT NULL,
@@ -41,10 +42,10 @@ CREATE TABLE "Fragment" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Fragment_messageId_key" ON "Fragment"("messageId");
+CREATE UNIQUE INDEX "Fragment_messageId_key" ON "public"."Fragment"("messageId");
 
 -- AddForeignKey
-ALTER TABLE "Message" ADD CONSTRAINT "Message_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."Message" ADD CONSTRAINT "Message_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "public"."Project"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Fragment" ADD CONSTRAINT "Fragment_messageId_fkey" FOREIGN KEY ("messageId") REFERENCES "Message"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."Fragment" ADD CONSTRAINT "Fragment_messageId_fkey" FOREIGN KEY ("messageId") REFERENCES "public"."Message"("id") ON DELETE CASCADE ON UPDATE CASCADE;
