@@ -168,6 +168,13 @@ export const screenshotAgentFunction = inngest.createFunction(
             '--no-zygote',
             '--single-process',
             '--disable-extensions',
+            '--disable-background-timer-throttling',
+            '--disable-backgrounding-occluded-windows',
+            '--disable-renderer-backgrounding',
+            '--disable-features=TranslateUI',
+            '--disable-ipc-flooding-protection',
+            '--memory-pressure-off',
+            '--max_old_space_size=4096',
           ],
         });
 
@@ -176,38 +183,63 @@ export const screenshotAgentFunction = inngest.createFunction(
           userAgent:
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
           ignoreHTTPSErrors: true,
-          deviceScaleFactor: 1, // Standard DPI for consistent quality
+          deviceScaleFactor: 1,
+          // Add performance optimizations
+          javaScriptEnabled: true,
+          bypassCSP: true,
+          extraHTTPHeaders: {
+            'Accept-Language': 'en-US,en;q=0.9',
+          },
         });
 
         const page = await context.newPage();
 
-        // Configure page timeouts
-        page.setDefaultTimeout(30000);
-        page.setDefaultNavigationTimeout(30000);
-
-        // Navigate to the URL
-        await page.goto(event.data.url, {
-          waitUntil: 'networkidle',
-          timeout: 30000,
+        // Optimize page performance
+        await page.setExtraHTTPHeaders({
+          Accept:
+            'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+          'Accept-Language': 'en-US,en;q=0.9',
+          'Cache-Control': 'no-cache',
         });
 
-        // Wait for dynamic content to load
-        await page.waitForTimeout(1500);
+        // Block unnecessary resources to speed up loading
+        await page.route('**/*', route => {
+          const resourceType = route.request().resourceType();
+          if (['image', 'media', 'font'].includes(resourceType)) {
+            route.abort();
+          } else {
+            route.continue();
+          }
+        });
 
-        // Capture screenshot
+        // Configure aggressive timeouts
+        page.setDefaultTimeout(15000); // Reduced from 30s
+        page.setDefaultNavigationTimeout(15000);
+
+        // Navigate with optimized wait strategy
+        await page.goto(event.data.url, {
+          waitUntil: 'domcontentloaded', // Faster than 'networkidle'
+          timeout: 15000,
+        });
+
+        // Wait for critical content with shorter timeout
+        await page.waitForTimeout(500); // Reduced from 1500ms
+
+        // Capture screenshot with optimized settings
         const screenshotBuffer = await page.screenshot({
-          type: 'png',
+          type: 'jpeg', // Smaller file size than PNG
+          quality: 85, // Good balance of quality and size
           fullPage: false,
         });
 
-        // Upload to Supabase Storage
-        const fileName = `screenshot-${event.data.projectId}-${Date.now()}.png`;
+        // Upload to Supabase Storage with optimized settings
+        const fileName = `screenshot-${event.data.projectId}-${Date.now()}.jpg`;
 
         const { data, error } = await supabaseAdmin.storage
           .from(SCREENSHOT_BUCKET)
           .upload(fileName, screenshotBuffer, {
-            contentType: 'image/png',
-            cacheControl: '3600',
+            contentType: 'image/jpeg',
+            cacheControl: '31536000', // 1 year cache
             upsert: false,
           });
 
