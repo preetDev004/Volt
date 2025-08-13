@@ -1,7 +1,13 @@
 import type { Metadata } from 'next';
+import { Oxanium } from 'next/font/google';
 import './globals.css';
 import { TRPCReactProvider } from '@/trpc/client';
 import { Toaster } from '@/components/ui/sonner';
+
+const oxanium = Oxanium({
+  subsets: ['latin'],
+  variable: '--font-oxanium',
+});
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -15,8 +21,8 @@ export default function RootLayout({
 }>) {
   return (
     <TRPCReactProvider>
-      <html lang="en">
-        <body className={`antialiased`}>
+      <html lang="en" className={oxanium.variable}>
+        <body className={`antialiased font-sans`}>
           {children}
           <Toaster />
         </body>
