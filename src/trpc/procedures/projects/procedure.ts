@@ -6,6 +6,25 @@ import z from 'zod';
 import { inngest } from '@/inngest/client';
 
 export const projectsRouter = createTRPCRouter({
+  getOne: baseProcedure
+    .input(
+      z.object({ id: z.string().min(1, { message: 'Project ID is required' }) })
+    )
+    .query(async ({ input }) => {
+      try {
+        return await prisma.project.findUnique({
+          where: {
+            id: input.id,
+          },
+        });
+      } catch (error) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Project not found',
+          cause: error,
+        });
+      }
+    }),
   getMany: baseProcedure.query(async () => {
     try {
       return await prisma.project.findMany({
@@ -15,8 +34,8 @@ export const projectsRouter = createTRPCRouter({
       });
     } catch (error) {
       throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to fetch projects',
+        code: 'NOT_FOUND',
+        message: 'Projects not found',
         cause: error,
       });
     }

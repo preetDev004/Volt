@@ -5,21 +5,30 @@ import { TRPCError } from '@trpc/server';
 import z from 'zod';
 
 export const messagesRouter = createTRPCRouter({
-  getMany: baseProcedure.query(async () => {
-    try {
-      return await prisma.message.findMany({
-        orderBy: {
-          updatedAt: 'desc',
-        },
-      });
-    } catch (error) {
-      throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to fetch messages',
-        cause: error,
-      });
-    }
-  }),
+  getMany: baseProcedure
+    .input(
+      z.object({
+        projectId: z.string().min(1, { message: 'Project ID is required' }),
+      })
+    )
+    .query(async ({ input }) => {
+      try {
+        return await prisma.message.findMany({
+          where: {
+            projectId: input.projectId,
+          },
+          include: {
+            fragment: true,
+          },
+        });
+      } catch (error) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to fetch messages',
+          cause: error,
+        });
+      }
+    }),
 
   create: baseProcedure
     .input(
