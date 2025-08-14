@@ -85,7 +85,7 @@ const AssistantMessage = ({
           alt="Volt"
           width={18}
           height={18}
-          className="shrink-0"
+          className="shrink-0 rotate-180"
         />
         <span className="text-base font-semibold">Volt</span>
         <span className="text-sm font-light text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100">
