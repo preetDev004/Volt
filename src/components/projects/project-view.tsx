@@ -5,7 +5,7 @@ import {
   ResizablePanelGroup,
 } from '@/components/ui/resizable';
 import { Suspense } from 'react';
-import MessagesContainer from './messages-container';
+import MessagesContainer from '@/components/messages/messages-container';
 
 interface ProjectViewProps {
   projectId: string;
