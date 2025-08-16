@@ -4,26 +4,52 @@ import { useSuspenseQuery } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 import MessageCard from './message-card';
 import MessageForm from './message-form';
+import { Fragment, MessageRole } from '@/generated/prisma';
+import MessageLoading from './message-loading';
 
 interface MessagesContainerProps {
   projectId: string;
+  activeFragment: Fragment | null;
+  setActiveFragment: (fragment: Fragment | null) => void;
 }
 
-const MessagesContainer = ({ projectId }: MessagesContainerProps) => {
+const MessagesContainer = ({
+  projectId,
+  activeFragment,
+  setActiveFragment,
+}: MessagesContainerProps) => {
   const trpc = useTRPC();
   const { data: messages } = useSuspenseQuery(
-    trpc.messages.getMany.queryOptions({ projectId })
+    trpc.messages.getMany.queryOptions(
+      { projectId },
+      {
+        // TODO: Remove this once we have a better way to handle Live message updates
+        refetchInterval: 5000,
+      }
+    )
   );
+  // TODO!: This is causing issues as it updates the active fragment every 5000ms
+  // useEffect(() => {
+  //   const lastAssistantMessageWithFragment = messages.findLast(
+  //     msg => msg.role === MessageRole.ASSISTANT && !!msg.fragment
+  //   );
+
+  //   if (lastAssistantMessageWithFragment) {
+  //     setActiveFragment(lastAssistantMessageWithFragment.fragment);
+  //   }
+  // }, [messages, setActiveFragment]);
+
+  const isLastMessageUser =
+    messages[messages.length - 1].role === MessageRole.USER;
 
   const bottomRef = useRef<HTMLDivElement>(null);
-
   // Auto-scroll to bottom when messages change
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages.length]);
 
   return (
-    <div className="flex flex-col flex-1 h-full">
+    <div className="flex flex-col flex-1 min-h-0">
       <div className="flex-1 min-h-0 overflow-y-auto">
         <div className="p-1.5">
           {messages.map(message => (
@@ -34,11 +60,14 @@ const MessagesContainer = ({ projectId }: MessagesContainerProps) => {
               type={message.type}
               fragment={message.fragment}
               createdAt={message.createdAt}
-              isActiveFragment={false}
-              onFragmentClick={() => {}}
+              isActiveFragment={activeFragment?.id === message.fragment?.id}
+              onFragmentClick={() => {
+                setActiveFragment(message.fragment);
+              }}
             />
           ))}
         </div>
+        {isLastMessageUser && <MessageLoading />}
         <div ref={bottomRef} className="pointer-events-none" />
       </div>
       <div className="relative p-3 pt-0.5">

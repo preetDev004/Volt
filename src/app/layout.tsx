@@ -3,6 +3,7 @@ import { Oxanium } from 'next/font/google';
 import './globals.css';
 import { TRPCReactProvider } from '@/trpc/client';
 import { Toaster } from '@/components/ui/sonner';
+import { ThemeProvider } from 'next-themes';
 
 const oxanium = Oxanium({
   subsets: ['latin'],
@@ -21,10 +22,17 @@ export default function RootLayout({
 }>) {
   return (
     <TRPCReactProvider>
-      <html lang="en" className={oxanium.variable}>
+      <html lang="en" className={oxanium.variable} suppressHydrationWarning>
         <body className={`antialiased font-sans`}>
-          {children}
-          <Toaster />
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+            <Toaster />
+          </ThemeProvider>
         </body>
       </html>
     </TRPCReactProvider>
