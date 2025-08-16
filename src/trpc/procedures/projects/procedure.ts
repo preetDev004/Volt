@@ -12,15 +12,22 @@ export const projectsRouter = createTRPCRouter({
     )
     .query(async ({ input }) => {
       try {
-        return await prisma.project.findUnique({
+        const project = await prisma.project.findUnique({
           where: {
             id: input.id,
           },
         });
+        if (!project) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Project not found',
+          });
+        }
+        return project;
       } catch (error) {
         throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Project not found',
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to get project',
           cause: error,
         });
       }
@@ -34,8 +41,8 @@ export const projectsRouter = createTRPCRouter({
       });
     } catch (error) {
       throw new TRPCError({
-        code: 'NOT_FOUND',
-        message: 'Projects not found',
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to get projects',
         cause: error,
       });
     }

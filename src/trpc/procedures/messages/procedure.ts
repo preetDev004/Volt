@@ -13,7 +13,7 @@ export const messagesRouter = createTRPCRouter({
     )
     .query(async ({ input }) => {
       try {
-        return await prisma.message.findMany({
+        const messages = await prisma.message.findMany({
           where: {
             projectId: input.projectId,
           },
@@ -21,6 +21,13 @@ export const messagesRouter = createTRPCRouter({
             fragment: true,
           },
         });
+        if (!messages) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Messages not found',
+          });
+        }
+        return messages;
       } catch (error) {
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',

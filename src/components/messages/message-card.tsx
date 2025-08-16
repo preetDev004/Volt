@@ -1,7 +1,7 @@
 import { Fragment, MessageRole, MessageType } from '@/generated/prisma';
 import { cn } from '@/lib/utils';
 import { formatDate } from 'date-fns';
-import { ChevronRightIcon, Code2Icon, SparklesIcon } from 'lucide-react';
+import { ChevronRightIcon, CircleCheckBig, Code2Icon } from 'lucide-react';
 import Image from 'next/image';
 import { Card } from '../ui/card';
 
@@ -75,8 +75,7 @@ const AssistantMessage = ({
       className={cn(
         'flex flex-col group px-1 pb-4',
         type === MessageType.ERROR &&
-          'text-red-700 dark:text-red-500 bg-destructive/10',
-        isActiveFragment && 'bg-primary/10'
+          'text-red-700 dark:text-red-500 bg-destructive/10'
       )}
     >
       <div className="flex items-center gap-2 mb-1">
@@ -120,10 +119,9 @@ const FragmentCard = ({
   return (
     <button
       className={cn(
-        'group/fragment relative w-full max-w-md rounded-xl border bg-gradient-to-br from-muted/50 to-muted/30 p-4 text-left transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 hover:border-primary/30',
+        'group/fragment relative w-3/4 max-w-xs rounded-xl border bg-gradient-to-br from-muted/50 to-muted/30 p-4 text-left transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 hover:border-primary/30',
         'backdrop-blur-sm',
         isActiveFragment && [
-          'bg-gradient-to-br from-primary/10 to-primary/5',
           'border-primary/50 shadow-lg shadow-primary/20',
           'ring-2 ring-primary/20',
         ]
@@ -133,7 +131,7 @@ const FragmentCard = ({
       {/* Background glow effect */}
       <div
         className={cn(
-          'absolute inset-0 rounded-xl bg-gradient-to-br to-primary/5 from-transparent opacity-0 transition-opacity duration-300',
+          'absolute inset-0 rounded-xl bg-gradient-to-br to-primary/5 from-transparent dark:to-violet-400/5 dark:from-transparent opacity-0 transition-opacity duration-300',
           'group-hover/fragment:opacity-100',
           isActiveFragment && 'opacity-100'
         )}
@@ -146,40 +144,33 @@ const FragmentCard = ({
           <div className="flex items-center gap-2">
             <div
               className={cn(
-                'flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-primary/0 to-primary/10'
+                'flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-primary/0 to-primary/10 dark:from-violet-400/0 dark:to-violet-400/20'
               )}
             >
-              <Code2Icon className="w-4 h-4 text-primary" />
+              <Code2Icon className="size-4 text-primary dark:text-violet-400" />
             </div>
             <div className="flex flex-col">
-              <span className="text-sm font-semibold text-foreground line-clamp-1 group-hover/fragment:text-primary transition-colors">
+              <span className="text-sm font-semibold text-foreground line-clamp-1 group-hover/fragment:text-primary dark:group-hover/fragment:text-violet-400 transition-colors">
                 {fragment.title}
               </span>
-              <span className="text-xs text-muted-foreground">
-                {Object.keys(fragment.files as object).length} file
-                {Object.keys(fragment.files as object).length !== 1 ? 's' : ''}
-              </span>
+              <span className="text-xs text-muted-foreground">Preview</span>
             </div>
           </div>
 
           {/* Action indicator */}
-          {isActiveFragment ? (
-            <div className="flex items-center justify-center h-8">
-              <div className="flex items-center justify-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
-                <SparklesIcon className="size-3" />
-                Active
-              </div>
-            </div>
-          ) : (
-            <div
-              className={cn(
-                'flex items-center justify-center w-8 h-8 rounded-full bg-muted/50',
-                'group-hover/fragment:bg-primary/10 group-hover/fragment:scale-110 transition-all duration-300'
-              )}
-            >
-              <ChevronRightIcon className="size-4 text-muted-foreground group-hover/fragment:text-primary transition-colors" />
-            </div>
-          )}
+
+          <div
+            className={cn(
+              'flex items-start justify-center w-8 h-8 rounded-full',
+              'group-hover/fragment:scale-110 transition-all duration-300'
+            )}
+          >
+            {isActiveFragment ? (
+              <CircleCheckBig className="size-4 text-primary dark:text-violet-400" />
+            ) : (
+              <ChevronRightIcon className="size-4 text-muted-foreground group-hover/fragment:text-primary dark:group-hover/fragment:text-violet-400 transition-colors" />
+            )}
+          </div>
         </div>
       </div>
     </button>

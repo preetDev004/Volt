@@ -31,6 +31,7 @@ const MessageForm = ({ projectId }: MessageFormProps) => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    // TODO: Adding Context for AI - Previous Fragments, etc.
     await sendMessage.mutateAsync({
       projectId,
       prompt: values.prompt,
