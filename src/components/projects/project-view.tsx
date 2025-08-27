@@ -8,6 +8,7 @@ import { Suspense, useState } from 'react';
 import MessagesContainer from '@/components/messages/messages-container';
 import { Fragment } from '@/generated/prisma';
 import ProjectHeader from './project-header';
+import FragmentWebView from '../fragments/fragment-web-view';
 
 interface ProjectViewProps {
   projectId: string;
@@ -43,7 +44,7 @@ const ProjectView = ({ projectId }: ProjectViewProps) => {
           maxSize={75}
           className="flex flex-col min-h-0"
         >
-          <div>TODO: Add project view</div>
+          {!!activeFragment && <FragmentWebView fragment={activeFragment} />}
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>
