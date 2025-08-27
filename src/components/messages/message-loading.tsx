@@ -25,7 +25,7 @@ const ShimmerMessage = () => {
   }, [message]);
 
   return (
-    <div className="flex items-start justify-center gap-2">
+    <div className="flex items-center justify-start gap-2">
       <span className="text-base text-muted-foreground animate-pulse transition-all duration-300">
         {message[currentMessageIndex]}
       </span>
@@ -42,9 +42,9 @@ const MessageLoading = () => {
           alt="Volt"
           width={18}
           height={18}
-          className="shrink-0"
+          className="shrink-0 rotate-180"
         />
-        <span className="text-sm font-medium">Volt</span>
+        <span className="text-base font-semibold">Volt</span>
       </div>
       <div className="flex flex-col pl-6.5 gap-y-4">
         <ShimmerMessage />
