@@ -101,7 +101,7 @@ export const codeAgentFunction = inngest.createFunction(
       });
 
       inngest.send({
-        name: 'screenshot-agent/run',
+        name: 'screenshot-job/run',
         data: {
           url: sandboxUrl,
           projectId: event.data.projectId,
@@ -139,9 +139,9 @@ export const codeAgentFunction = inngest.createFunction(
   }
 );
 
-export const screenshotAgentFunction = inngest.createFunction(
+export const screenshotFunction = inngest.createFunction(
   { id: 'screenshot-agent' },
-  { event: 'screenshot-agent/run' },
+  { event: 'screenshot-job/run' },
   async ({ event, step }) => {
     // Validate required input data
     if (!event.data.url || !event.data.projectId) {
