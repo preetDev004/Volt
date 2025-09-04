@@ -45,7 +45,7 @@ app.post(
   async (c) => {
     const { message } = c.req.valid("json");
     const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini-2024-07-18",
+      model: "gpt-5-2025-08-07",
       messages: [
         {
           role: "system",
